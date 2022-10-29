@@ -1,5 +1,7 @@
 import numpy as np
 import cv2
+import json
+import pandas as pd
 
 def combineRectangles(rectangle1, rectangle2):
     veryLeftX = rectangle1.leftX if rectangle1.leftX < rectangle2.leftX else rectangle2.leftX
@@ -25,6 +27,7 @@ def createRectangleWithTuple(tuple):
     newRectangle.height = tuple[3]
     return newRectangle
 
+
 def getCharacterBoundingBoxes(boundingRectangles):
     # Get the characters (assign columns to same character
     allRectangles = []
@@ -46,6 +49,24 @@ def getCharacterBoundingBoxes(boundingRectangles):
             finalRectangles.append(curRectangle)
             curRectangle = None
     return finalRectangles
+
+
+def getCroppedImages(finalRectangles, img):
+    all_cropped = []
+    for rectangle in finalRectangles:
+        crop_img = img[int(rectangle.upperY):int(rectangle.lowerY), int(rectangle.leftX):int(rectangle.rightX)]
+        (thresh, blackAndWhiteImage) = cv2.threshold(crop_img, 127, 255, cv2.THRESH_BINARY)
+        rows, cols, _ = blackAndWhiteImage.shape
+        newArray = np.zeros((rows, cols))
+        for i in range(rows):
+            for j in range(cols):
+                if blackAndWhiteImage[i][j][0] == 255:
+                    newArray[i][j] = 1
+                else:
+                    newArray[i][j] = 0
+        all_cropped.append(newArray)
+    return all_cropped
+
 class boundingRectangle():
     def __init__(self):
         self.leftX = 0
@@ -54,10 +75,6 @@ class boundingRectangle():
         self.lowerY = 0
         self.width = 0
         self.height = 0
-        pass
-
-    def get_area(self):
-        return self.width * self.height
 
     def get_overlaps(self, otherRectangle):
         if otherRectangle.leftX < self.leftX < otherRectangle.rightX:
@@ -69,6 +86,23 @@ class boundingRectangle():
         if self.leftX < otherRectangle.leftX and self.rightX > otherRectangle.rightX:
             return True
         return False
+
+def createFlatCharObjectFromJson(myJson):
+    myObject = json.loads(myJson)
+    return FlatCharacterObject(np.array(pd.read_json(myObject['dfString'])), myObject['label'])
+
+class FlatCharacterObject:
+
+    def __init__(self, array, label):
+        self.dfString = pd.DataFrame(array).to_json()
+        self.label = label
+
+    def to_json(self):
+        return json.dumps({"dfString":self.dfString, "label":self.label})
+
+    def get_array(self):
+        return pd.read_json(self.dfString)
+
 
 def main2():
     # Read in the image
@@ -98,6 +132,10 @@ def main2():
     # Get the characters (assign columns to same character
     finalRectangles = getCharacterBoundingBoxes(boundRect)
 
+    cropped_images = getCroppedImages(finalRectangles, img)
+    flatCharacterObject = FlatCharacterObject(cropped_images[8], "3")
+    str = flatCharacterObject.to_json()
+    flatCharObject2 = createFlatCharObjectFromJson(str)
     for curRectangle in finalRectangles:
         cv2.rectangle(img, (curRectangle.leftX, curRectangle.upperY),
                       (curRectangle.rightX, curRectangle.lowerY), (0, 255, 0), 2)
