@@ -51,7 +51,7 @@ def getCharacterBoundingBoxes(boundingRectangles):
     return finalRectangles
 
 
-def getCroppedImages(finalRectangles, img):
+def getRawArrays(finalRectangles, img):
     all_cropped = []
     for rectangle in finalRectangles:
         crop_img = img[int(rectangle.upperY):int(rectangle.lowerY), int(rectangle.leftX):int(rectangle.rightX)]
@@ -61,9 +61,9 @@ def getCroppedImages(finalRectangles, img):
         for i in range(rows):
             for j in range(cols):
                 if blackAndWhiteImage[i][j][0] == 255:
-                    newArray[i][j] = 1
-                else:
                     newArray[i][j] = 0
+                else:
+                    newArray[i][j] = 1
         all_cropped.append(newArray)
     return all_cropped
 
@@ -89,20 +89,71 @@ class boundingRectangle():
 
 def createFlatCharObjectFromJson(myJson):
     myObject = json.loads(myJson)
-    return FlatCharacterObject(np.array(pd.read_json(myObject['dfString'])), myObject['label'])
+    return FlatCharacterObject([], myObject['label'], myObject['dfString'])
 
 class FlatCharacterObject:
 
-    def __init__(self, array, label):
-        self.dfString = pd.DataFrame(array).to_json()
+    def __init__(self, array, label, json=None):
+        if json:
+            self.dfString = json
+        else:
+            self.dfString = pd.DataFrame(array).to_json()
         self.label = label
 
     def to_json(self):
         return json.dumps({"dfString":self.dfString, "label":self.label})
 
     def get_array(self):
-        return pd.read_json(self.dfString)
+        return np.array(pd.read_json(self.dfString))
 
+
+def writeFile(filePath, label, outPath):
+    # Read in the image
+    img = cv2.imread(filePath)
+
+    # Convert the image to grayscale in order to find edges
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Find Canny edges
+    edged = cv2.Canny(gray, 30, 200)
+
+    # Get the contours from the image that has been edged
+    contours, hierarchy = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+    contours_poly = [None] * len(contours)
+    # The Bounding Rectangles will be stored here:
+    cv2_bounding_rectangles = []
+
+    # Alright, just look for the outer bounding boxes:
+    for i, c in enumerate(contours):
+        # Smooth the shape into a polygon then get the bounding rectangle
+        contours_poly[i] = cv2.approxPolyDP(c, 3, True)
+        cv2_bounding_rectangles.append(cv2.boundingRect(contours_poly[i]))
+
+    # Get the characters (assign columns to same character
+    final_rectangles = getCharacterBoundingBoxes(cv2_bounding_rectangles)
+
+    raw_arrays = getRawArrays(final_rectangles, img)
+
+    labelFile = open(outPath, "w")
+    labelFile.write("")
+    labelFile.close()
+
+    labelFile = open(outPath, "a")
+    for image_array in raw_arrays:
+        currentCharacterObject = FlatCharacterObject(image_array, label)
+        labelFile.write(currentCharacterObject.to_json())
+        labelFile.write('\n')
+    labelFile.close()
+
+def readFile(filePath):
+    labelFile = open(filePath, "r")
+    charJsons = labelFile.readlines()
+    allCharObjects = []
+    for charJson in charJsons:
+        myCharObject = createFlatCharObjectFromJson(charJson)
+        allCharObjects.append(myCharObject)
+    return allCharObjects
 
 def main2():
     # Read in the image
@@ -132,10 +183,12 @@ def main2():
     # Get the characters (assign columns to same character
     finalRectangles = getCharacterBoundingBoxes(boundRect)
 
-    cropped_images = getCroppedImages(finalRectangles, img)
+    cropped_images = getRawArrays(finalRectangles, img)
     flatCharacterObject = FlatCharacterObject(cropped_images[8], "3")
     str = flatCharacterObject.to_json()
     flatCharObject2 = createFlatCharObjectFromJson(str)
+    arr = flatCharObject2.get_array()
+    print(flatCharObject2.dfString)
     for curRectangle in finalRectangles:
         cv2.rectangle(img, (curRectangle.leftX, curRectangle.upperY),
                       (curRectangle.rightX, curRectangle.lowerY), (0, 255, 0), 2)
@@ -153,4 +206,7 @@ def main2():
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
-    main2()
+    # main2()
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\All.PNG", "all", "characters.txt")
+    myObjs = readFile("characters.txt")
+    print("done")
