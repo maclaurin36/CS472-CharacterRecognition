@@ -89,7 +89,7 @@ class boundingRectangle():
         return False
 
 
-def writeFile(filePath, label, outPath):
+def writeFile(filePath, label, outPath, clear=False):
     # Read in the image
     img = cv2.imread(filePath)
 
@@ -117,9 +117,10 @@ def writeFile(filePath, label, outPath):
 
     raw_arrays = getRawArrays(final_rectangles, img)
 
-    labelFile = open(outPath, "w")
-    labelFile.write("")
-    labelFile.close()
+    if clear:
+        labelFile = open(outPath, "w")
+        labelFile.write("")
+        labelFile.close()
 
     labelFile = open(outPath, "a")
     for image_array in raw_arrays:
@@ -127,6 +128,7 @@ def writeFile(filePath, label, outPath):
         labelFile.write(currentCharacterObject.to_json())
         labelFile.write('\n')
     labelFile.close()
+
 
 def main2():
     # Read in the image
@@ -180,6 +182,28 @@ def main2():
 
 if __name__ == '__main__':
     # main2()
-    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\All.PNG", "all", "characters.txt")
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\FancyDivides.PNG", "fancyDivide", "characters.txt", True)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\DotMultiplies.PNG", "dotMultiply", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\AsteriskMultiplies.PNG", "asteriskMultiply", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\SlashDivides.PNG", "slashDivide", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\XMultiplis.PNG", "XMultiply", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\equals.PNG", "equal", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\RightParenthesis.PNG", "rightParen", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\LeftParenthesis.PNG", "leftParen", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Pluses.PNG", "plus", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Zeros.PNG", "zero", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Nines.PNG", "nine", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Eights.PNG", "eight", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\SevensWithCross.PNG", "sevenWithCross", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Sevens.PNG", "seven", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Sixes.PNG", "six", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Fives.PNG", "five", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\ConnectedFours.PNG", "fourConnected", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Fours.PNG", "four", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\Threes.PNG", "three", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\CurvyTwos.PNG", "twoCurvy", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\normalTwos.PNG", "two", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\FunkyOnes.PNG", "oneFancy", "characters.txt", False)
+    writeFile(r"C:\Users\jesse.clark_awardco\Desktop\StraightOnes.PNG", "one", "characters.txt", False)
     myObjs = readFile("characters.txt")
     print("done")
