@@ -20,7 +20,7 @@ class AllFeaturesProcessor:
     def getProcessors(self):
         return [
             SymmetryProcessor(),
-            DensityProcessor(4),
+            DensityProcessor(2),
         ]
 
     # For each processor, add it's derived values (could be more than one) to the feature list
@@ -31,8 +31,8 @@ class AllFeaturesProcessor:
 
         for i in range(len(self.processors)):
             processor = self.processors[i]
-            if (not type(processor) is FeatureProcessor):
-                print('bad processor type')
+            # if (not type(processor) is FeatureProcessor):
+            #     print('bad processor type')
             processor.addFeaturesToList(featureList, arr)
 
         return featureList.getFeatureValuesAsArray(), featureList.getLabels()
