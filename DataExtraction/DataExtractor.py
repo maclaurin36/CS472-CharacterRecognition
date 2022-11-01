@@ -205,5 +205,5 @@ if __name__ == '__main__':
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\normalTwos.PNG", "two", "characters.txt", False)
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\FunkyOnes.PNG", "oneFancy", "characters.txt", False)
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\StraightOnes.PNG", "one", "characters.txt", False)
-    myObjs = readFile("characters.txt")
+    myObjs = readFile("../characters.txt")
     print("done")
