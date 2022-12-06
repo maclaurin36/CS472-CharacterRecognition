@@ -3,6 +3,7 @@ import cv2
 import json
 import pandas as pd
 from FlatCharacterObject import *
+import DataExtraction.SlantTransformer
 
 def combineRectangles(rectangle1, rectangle2):
     veryLeftX = rectangle1.leftX if rectangle1.leftX < rectangle2.leftX else rectangle2.leftX
@@ -122,10 +123,24 @@ def writeFile(filePath, label, outPath, clear=False):
         labelFile.write("")
         labelFile.close()
 
+
+    slantTransformer = DataExtraction.SlantTransformer.SlantTransformer()
     labelFile = open(outPath, "a")
     for image_array in raw_arrays:
         currentCharacterObject = FlatCharacterObject(image_array, label)
+        slightLeftSlantedCharacterObject = FlatCharacterObject(slantTransformer.getSlantedMatrix(image_array, -0.1), label)
+        slightRightSlantedCharacterObject = FlatCharacterObject(slantTransformer.getSlantedMatrix(image_array, 0.1), label)
+        majorLeftSlantedCharacterObject = FlatCharacterObject(slantTransformer.getSlantedMatrix(image_array, -1), label)
+        majorRightSlantedCharacterObject = FlatCharacterObject(slantTransformer.getSlantedMatrix(image_array, 1), label)
         labelFile.write(currentCharacterObject.to_json())
+        labelFile.write('\n')
+        labelFile.write(slightLeftSlantedCharacterObject.to_json())
+        labelFile.write('\n')
+        labelFile.write(slightRightSlantedCharacterObject.to_json())
+        labelFile.write('\n')
+        labelFile.write(majorLeftSlantedCharacterObject.to_json())
+        labelFile.write('\n')
+        labelFile.write(majorRightSlantedCharacterObject.to_json())
         labelFile.write('\n')
     labelFile.close()
 
@@ -205,5 +220,5 @@ if __name__ == '__main__':
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\normalTwos.PNG", "two", "characters.txt", False)
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\FunkyOnes.PNG", "oneFancy", "characters.txt", False)
     writeFile(r"C:\Users\jesse.clark_awardco\Desktop\StraightOnes.PNG", "one", "characters.txt", False)
-    myObjs = readFile("../characters.txt")
+    # myObjs = readFile("../characters.txt")
     print("done")

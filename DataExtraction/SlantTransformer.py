@@ -65,24 +65,29 @@ class SlantTransformer:
 
         return newMatrix
 
-slantTransformer = SlantTransformer()
+def main():
+    slantTransformer = SlantTransformer()
 
-oneSlantedRight = slantTransformer.getSlantedMatrix(ONE, 1)
-oneSlantedLeft = slantTransformer.getSlantedMatrix(ONE, -1)
-printMatrixOnGraph([ONE, oneSlantedRight, oneSlantedLeft])
+    oneSlantedRight = slantTransformer.getSlantedMatrix(ONE, 1)
+    oneSlantedLeft = slantTransformer.getSlantedMatrix(ONE, -1)
+    printMatrixOnGraph([ONE, oneSlantedRight, oneSlantedLeft])
 
-# Test with actual data
+    # Test with actual data
 
-localPath = 'C:\\Users\\Adam\\School\\CS472\\Group Project\\CS472-CharacterRecognition\\DataExtraction\\'
-charMatrices = readFile(localPath + 'characters.txt')
+    localPath = 'C:\\Users\\jesse.clark_awardco\\PycharmProjects\\projectProposal\\DataExtraction\\'
+    charMatrices = readFile(localPath + 'characters.txt')
 
-dataIndex = 325
+    dataIndex = 325
 
-for bigChar in charMatrices[dataIndex : dataIndex + 5]:
-    matrix = bigChar.get_array()
-    matrixSlant = slantTransformer.getSlantedMatrix(matrix, .3)
-    matrixSlantTwo = slantTransformer.getSlantedMatrix(matrix, -.3)
-    printMatrixOnGraph([matrix, matrixSlant, matrixSlantTwo])
+    for bigChar in charMatrices[dataIndex : dataIndex + 5]:
+        matrix = bigChar.get_array()
+        matrixSlant = slantTransformer.getSlantedMatrix(matrix, .3)
+        matrixSlantTwo = slantTransformer.getSlantedMatrix(matrix, -.3)
+        printMatrixOnGraph([matrix, matrixSlant, matrixSlantTwo])
+
+
+if __name__ == "__main__":
+    main()
 
 
 
