@@ -11,20 +11,50 @@ def main():
         if character.label not in dictOfCharacters:
             dictOfCharacters[character.label] = []
         dictOfCharacters[character.label].append(character)
-    characterList = []
 
     allFeaturesProcessor = AllFeaturesProcessor()
+    len_intersects = 2
+
+    allOutputs = []
+    header = []
     for label in dictOfCharacters:
-        array = dictOfCharacters[label][0].get_array()
-        featureValues, labels = allFeaturesProcessor.getAllDerivedFeaturesAndLabels(array)
-        print(label)
-        print(labels)
-        print(featureValues)
-        x_intersects, y_intersects = getIntersects(array, 2)
-        print("X-intersects")
-        print(x_intersects)
-        print("Y-intersects")
-        print(y_intersects)
+        for dictLabel in dictOfCharacters[label]:
+            array = dictLabel.get_array()
+            featureValues, labels = allFeaturesProcessor.getAllDerivedFeaturesAndLabels(array)
+            x_intersects, y_intersects = getIntersects(array, len_intersects)
+            for i in range(len_intersects):
+                featureValues.append(x_intersects[i])
+                featureValues.append(y_intersects[i])
+            featureValues.append(label)
+            allOutputs.append(featureValues)
+
+            if len(header) == 0:
+                header.extend(labels)
+
+    header.extend(createHeader(len_intersects))
+    header.append('label')
+    print(header)
+    for row in allOutputs:
+        print(row)
+
+    featureFile = open("extractedFeatures.csv", "w")
+    featureFile.write("")
+    featureFile.close()
+
+    featureFile = open("extractedFeatures.csv", "a")
+    featureFile.write(str.join(',', header))
+    featureFile.write('\n')
+    for row in allOutputs:
+        featureFile.write(','.join(str(x) for x in row))
+        featureFile.write('\n')
+    featureFile.close()
+
+def createHeader(len_intersects):
+    labels = []
+    for i in range(len_intersects):
+            labels.append(f"num_x_intersects_{i}")
+            labels.append(f"num_y_intersects_{i}")
+    return labels
 
 def getIntersects(pic, numSamples):
     height = pic.shape[0]
